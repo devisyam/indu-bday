@@ -5,14 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.querySelectorAll('.photo-slot[data-photo]').forEach((slot) => {
-    const path = slot.dataset.photo;
-    const image = new Image();
-    image.onload = () => {
-      slot.style.backgroundImage = `url("${path}")`;
+    const image = slot.querySelector('.photo-image');
+    if (!image) return;
+    const showPhoto = () => {
       slot.classList.add('has-photo');
-      slot.setAttribute('aria-label', slot.dataset.label || 'Photo');
+      slot.setAttribute('aria-label', slot.dataset.label || image.alt || 'Photo');
     };
-    image.src = path;
+    image.addEventListener('load', showPhoto);
+    image.addEventListener('error', () => {
+      image.hidden = true;
+      slot.classList.remove('has-photo');
+    });
+    if (image.complete && image.naturalWidth > 0) showPhoto();
   });
 
   const countdown = document.querySelector('[data-countdown]');
